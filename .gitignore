@@ -105,4 +105,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-.scrape_output
+*/.scrape_output
+*.pkl
