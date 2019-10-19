@@ -31,6 +31,7 @@ class Locations(BaseModel):
     map_top_long = FloatField(null=True)
     nav_lat = FloatField(null=True)
     nav_long = FloatField(null=True)
+    radius = FloatField(null=True)
     street = CharField(primary_key=True)
 
     class Meta:
