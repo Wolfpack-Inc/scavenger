@@ -46,11 +46,12 @@ class InitialSuggestion(Resource):
                     .alias('subquery'))
         
         images = (Images
-                  .select(fn.min(Images.id).alias('id'), Images.street, Images.url, Images.title, 
+                  .select(fn.min(Images.id).alias('id'), Images.street, Images.url, Images.title,
                           subquery.c.dis_long, subquery.c.dis_lat)
                   .join(subquery, on =
                         (Images.street == subquery.c.street))
                   .group_by(Images.street)
+                  .where(Images.usable == 1)
                   .dicts()
                   .execute())
         
