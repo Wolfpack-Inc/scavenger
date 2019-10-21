@@ -40,14 +40,14 @@ class InitialSuggestion(Resource):
                     .select(Locations.street.alias('street'), fn.sqrt(fn.pow(lat-Locations.dis_lat, 2) + 
                                                               fn.pow(long-Locations.dis_long, 2))
                             .alias('dist'),
-                            Locations.dis_long, Locations.dis_lat)
+                            Locations.dis_long.alias('longitude'), Locations.dis_lat.alias('latitude'), Locations.radius)
                     .order_by(SQL('dist'))
                     .limit(5)
                     .alias('subquery'))
         
         images = (Images
                   .select(fn.min(Images.id).alias('id'), Images.street, Images.url, Images.title,
-                          subquery.c.dis_long, subquery.c.dis_lat)
+                          subquery.c.longitude, subquery.c.latitude, subquery.c.radius)
                   .join(subquery, on =
                         (Images.street == subquery.c.street))
                   .group_by(Images.street)
