@@ -46,16 +46,16 @@ class Users(BaseModel):
         table_name = 'users'
 
 class UserPictures(BaseModel):
-    user_pictures_datetime = DateTimeField()
-    user_pictures_image = ForeignKeyField(column_name='user_pictures_image_id', field='id', model=Images)
-    user_pictures_location_lat = DecimalField()
-    user_pictures_location_long = DecimalField()
-    user_pictures_user = ForeignKeyField(column_name='user_pictures_user_id', field='id', model=Users)
+    image = ForeignKeyField(column_name='image_id', field='id', model=Images)
+    location_latitude = DecimalField()
+    location_longitude = DecimalField()
+    picture_datetime = DateTimeField()
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
         table_name = 'user_pictures'
         indexes = (
-            (('user_pictures_user', 'user_pictures_location_lat', 'user_pictures_location_long', 'user_pictures_image', 'user_pictures_datetime'), True),
+            (('user', 'location_latitude', 'location_longitude', 'image', 'picture_datetime'), True),
         )
-        primary_key = CompositeKey('user_pictures_datetime', 'user_pictures_image', 'user_pictures_location_lat', 'user_pictures_location_long', 'user_pictures_user')
+        primary_key = CompositeKey('image', 'location_latitude', 'location_longitude', 'picture_datetime', 'user')
 
