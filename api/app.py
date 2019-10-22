@@ -52,6 +52,7 @@ class InitialSuggestion(Resource):
                         (Images.street == subquery.c.street))
                   .group_by(Images.street)
                   .where(Images.usable == 1)
+                  .order_by(subquery.c.latitude)
                   .dicts()
                   .execute())
         
