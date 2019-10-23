@@ -1,6 +1,6 @@
 from peewee import *
 
-database = MySQLDatabase('scavenger', **{'charset': 'utf8', 'use_unicode': True, 'host': '165.22.199.122', 'user': 'remote', 'password': 'EtrPCEc0jt'})
+database = MySQLDatabase('scavenger', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '165.22.199.122', 'user': 'remote', 'password': 'EtrPCEc0jt'})
 
 class UnknownField(object):
     def __init__(self, *_, **__): pass
@@ -20,45 +20,42 @@ class Images(BaseModel):
         table_name = 'images'
 
 class Locations(BaseModel):
-    dis_lat = FloatField(null=True)
-    dis_long = FloatField(null=True)
-    index = BigIntegerField(index=True, null=True)
+    index = BigAutoField()
+    latitude = FloatField()
+    longitude = FloatField()
     map_avg_lat = FloatField(null=True)
     map_avg_long = FloatField(null=True)
     map_bot_lat = FloatField(null=True)
     map_bot_long = FloatField(null=True)
     map_top_lat = FloatField(null=True)
     map_top_long = FloatField(null=True)
-    nav_lat = FloatField(null=True)
-    nav_long = FloatField(null=True)
-    street = CharField(primary_key=True)
     radius = FloatField(null=True)
+    street = CharField()
 
     class Meta:
         table_name = 'locations'
 
-class UserTable(BaseModel):
-    user_current_score = IntegerField(null=True)
-    user_date = DateTimeField(null=True)
-    user_id = AutoField()
-    user_location_lat = DecimalField()
-    user_location_long = DecimalField()
-    user_total_score = IntegerField(null=True)
+class Users(BaseModel):
+    current_image_id = IntegerField(null=True)
+    last_update_datetime = DateTimeField(null=True)
+    location_latitude = DecimalField()
+    location_longitude = DecimalField()
+    profile_picture = CharField(null=True)
 
     class Meta:
-        table_name = 'user_table'
+        table_name = 'users'
 
 class UserPictures(BaseModel):
-    user_pictures_datetime = DateTimeField()
-    user_pictures_image = ForeignKeyField(column_name='user_pictures_image_id', field='id', model=Images)
-    user_pictures_location_lat = DecimalField()
-    user_pictures_location_long = DecimalField()
-    user_pictures_user = ForeignKeyField(column_name='user_pictures_user_id', field='user_id', model=UserTable)
+    image = ForeignKeyField(column_name='image_id', field='id', model=Images)
+    location_latitude = DecimalField()
+    location_longitude = DecimalField()
+    picture_datetime = DateTimeField()
+    user = ForeignKeyField(column_name='user_id', field='id', model=Users)
 
     class Meta:
         table_name = 'user_pictures'
         indexes = (
-            (('user_pictures_user', 'user_pictures_location_lat', 'user_pictures_location_long', 'user_pictures_image', 'user_pictures_datetime'), True),
+            (('user', 'location_latitude', 'location_longitude', 'image', 'picture_datetime'), True),
         )
-        primary_key = CompositeKey('user_pictures_datetime', 'user_pictures_image', 'user_pictures_location_lat', 'user_pictures_location_long', 'user_pictures_user')
+        primary_key = CompositeKey('image', 'location_latitude', 'location_longitude', 'picture_datetime', 'user')
 

@@ -70,6 +70,7 @@ class Suggestion(Resource):
         long = (UserPictures
                 .select(UserPictures.location_longitude)
                 .where(UserPictures.user_id==user_id)
+                .order_by(UserPictures.picture_datetime)
                 .limit(1)
                 .dicts())
 
