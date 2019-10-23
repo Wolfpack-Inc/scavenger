@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api
 from models import *
 from peewee import *
+import pandas as pd
 
 app = Flask(__name__)
 api = Api(app)
