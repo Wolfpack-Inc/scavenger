@@ -118,7 +118,8 @@ class Suggestion(Resource):
         
         # select one random picture from each street in top 10 streets
         suggestions = (Images
-                       .select()
+                       .select(Images.id, Images.street, Images.title, Images.url, Images.usable, Images.year, 
+                       subquery_3.c.longitude, subquery_3.c.latitude)
                        .join(subquery_3, on=(Images.id==subquery_3.c.id))
                        .where(subquery_3.c.rownr==1)
                        .order_by(subquery_3.c.latitude)
