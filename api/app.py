@@ -41,7 +41,7 @@ class InitialSuggestion(Resource):
                     .select(Locations.street.alias('street'), fn.sqrt(fn.pow(lat-Locations.dis_lat, 2) + 
                                                               fn.pow(long-Locations.dis_long, 2))
                             .alias('dist'),
-                            Locations.dis_long.alias('longitude'), Locations.dis_lat.alias('latitude'), Locations.radius)
+                            Locations.longitude, Locations.latitude, Locations.radius)
                     .order_by(SQL('dist'))
                     .limit(5)
                     .alias('subquery'))
