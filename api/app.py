@@ -38,8 +38,8 @@ class InitialSuggestion(Resource):
     """
     def get(self, long, lat):
         subquery = (Locations
-                    .select(Locations.street.alias('street'), fn.sqrt(fn.pow(lat-Locations.dis_lat, 2) + 
-                                                              fn.pow(long-Locations.dis_long, 2))
+                    .select(Locations.street.alias('street'), fn.sqrt(fn.pow(lat-Locations.latitude, 2) + 
+                                                              fn.pow(long-Locations.longitude, 2))
                             .alias('dist'),
                             Locations.longitude, Locations.latitude, Locations.radius)
                     .order_by(SQL('dist'))
