@@ -54,7 +54,7 @@ class SessionPoints(Resource):
                 .dicts()
                 .execute())
         
-        return sum([point['points'] for point in points])
+        return {'points' :sum([point['points'] for point in points])}
     
 api.add_resource(SessionPoints, '/session-points/<int:user_id>')
 
