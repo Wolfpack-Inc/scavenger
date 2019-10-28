@@ -120,6 +120,7 @@ class Suggestion(Resource):
             .select(Locations.street, fn.sqrt(fn.pow(last_lat-Locations.latitude, 2) + 
                                               fn.pow(last_long-Locations.longitude, 2))
                     .alias('dist'), Locations.longitude, Locations.latitude)
+            .where(fn.sqrt(fn.pow(last_lat-Locations.latitude, 2) + fn.pow(last_long-Locations.longitude, 2)) > 0.1)
             .order_by(SQL('dist'))
             .dicts()
             .limit(10)
