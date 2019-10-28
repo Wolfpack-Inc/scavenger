@@ -10,6 +10,7 @@ class BaseModel(Model):
         database = database
 
 class Images(BaseModel):
+    points = IntegerField(null=True)
     street = TextField(null=True)
     title = TextField(null=True)
     url = TextField(null=True)

@@ -32,6 +32,32 @@ class AllImage(Resource):
 
 api.add_resource(AllImage, '/images/all')
 
+class SessionPoints(Resource):
+    """
+    Returns points collected by a user in today's session
+    """
+    def get(self, user_id):
+        from datetime import date
+        today = date.today()
+
+        image_ids = (UserPictures
+                    .select(UserPictures.image_id)
+                    .where(UserPictures.user_id == user_id and UserPictures.picture_datetime > today)
+                    .dicts()
+                    .execute())
+        
+        image_ids_list = [image_id['image'] for image_id in image_ids]
+
+        points = (Images
+                .select(Images.points)
+                .where(Images.id.in_(image_ids_list))
+                .dicts()
+                .execute())
+        
+        return sum([point['points'] for point in points])
+    
+api.add_resource(SessionPoints, '/session-points/<int:user_id>')
+
 class InitialSuggestion(Resource):
     """
     Get five closeby heritage images 

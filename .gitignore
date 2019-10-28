@@ -107,3 +107,4 @@ venv.bak/
 
 */.scrape_output
 *.pkl
+notebooks/Untitled.ipynb
