@@ -77,8 +77,6 @@ class Suggestion(Resource):
     Get ten suggestions based on location and previously visited images
     """
     def get(self, user_id):
-        
-        # get longitude and latitude of last-visited picture
         long = (UserPictures
                 .select(UserPictures.location_longitude)
                 .where(UserPictures.user_id==user_id)
@@ -99,41 +97,31 @@ class Suggestion(Resource):
         for row in lat:
             last_lat = float(row['location_latitude'])
 
-        # print(last_long, last_lat) 
-        # return {
-        #     'long': last_long,
-        #     'lat': last_lat
-        # }
-            
-        # calculate distances from last-visited picture to each street and take 10 closest streets
         subquery_1 = (Locations
-            .select(Locations.street, fn.sqrt(fn.pow(last_lat-Locations.latitude, 2) + 
-                                              fn.pow(last_long-Locations.longitude, 2))
-                    .alias('dist'), Locations.longitude, Locations.latitude)
-            .where(fn.sqrt(fn.pow(last_lat-Locations.latitude, 2) + fn.pow(last_long-Locations.longitude, 2)) > 0.1)
-            .order_by(SQL('dist'))
-            .dicts()
-            .limit(10)
-            .alias('subquery_1'))
+                    .select(Locations.street, fn.sqrt(fn.pow(last_lat-Locations.latitude, 2) + 
+                                                      fn.pow(last_long-Locations.longitude, 2))
+                            .alias('dist'), Locations.longitude, Locations.latitude)
+                    .where(fn.sqrt(fn.pow(last_lat-Locations.latitude, 2) + fn.pow(last_long-Locations.longitude, 2)) > 0.1)
+                    .order_by(SQL('dist'))
+                    .dicts()
+                    .limit(10)
+                    .alias('subquery_1'))
 
         top_10_streets = list(pd.DataFrame(subquery_1)['street'])
-        
-        # get all pictures that the user has visited before
+
         subquery_2 = (UserPictures
                      .select(UserPictures.image_id)
                      .where(UserPictures.user_id==user_id)
                      .dicts())
-        
-        # randomly assign row numbers to images within top 10 streets, but that the user has not already visited
+
         subquery_3 = (Locations
                     .select(fn.row_number().over(partition_by=[Locations.street], order_by=fn.Rand()).alias('rownr'),
-                    Images.id, Images.street, Images.url, Images.title, Locations.longitude, Locations.latitude)
-                    .where(Images.street.in_(top_10_streets) & Images.usable==1 & Images.id.not_in(subquery_2))
+                            Images.id, Images.street, Images.url, Images.title, Locations.longitude, Locations.latitude)
+                    .where(Images.street.in_(top_10_streets) & (Images.usable==1) & Images.id.not_in(subquery_2))
                     .join(Images, on=(Locations.street==Images.street))
                     .dicts()
-                    .alias('subquery_4'))
-        
-        # select one random picture from each street in top 10 streets
+                    .alias('subquery_3'))
+
         suggestions = (Images
                        .select(Images.id, Images.street, Images.title, Images.url, Images.usable, Images.year, Images.points,
                        subquery_3.c.longitude, subquery_3.c.latitude)
