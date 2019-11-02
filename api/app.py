@@ -18,22 +18,6 @@ class HelloWorld(Resource):
 
 api.add_resource(HelloWorld, '/')
 
-class AllImage(Resource):
-    """
-    Get all heritage images
-    """
-    def get(self):
-        images = (Images
-            .select()
-            .where(Images.usable == 1)
-            .limit(10)
-            .dicts()
-            .execute())
-
-        return [image for image in images]
-
-api.add_resource(AllImage, '/images/all')
-
 class SessionPoints(Resource):
     """
     Returns points collected by a user in today's session
