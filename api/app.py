@@ -27,7 +27,7 @@ class SessionPoints(Resource):
 
         image_ids = (UserPictures
                     .select(UserPictures.image_id)
-                    .where((UserPictures.user_id == user_id) and (UserPictures.picture_datetime > today))
+                    .where((UserPictures.user_id == user_id) & (UserPictures.picture_datetime > today))
                     .dicts()
                     .execute())
         
