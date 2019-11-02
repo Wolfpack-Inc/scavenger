@@ -27,7 +27,7 @@ class SessionPoints(Resource):
 
         image_ids = (UserPictures
                     .select(UserPictures.image_id)
-                    .where(UserPictures.user_id == user_id and UserPictures.picture_datetime > today)
+                    .where((UserPictures.user_id == user_id) and (UserPictures.picture_datetime > today))
                     .dicts()
                     .execute())
         
@@ -41,7 +41,7 @@ class SessionPoints(Resource):
         
         return {'points' :sum([point['points'] for point in points])}
     
-api.add_resource(SessionPoints, '/session-points/<int:user_id>')
+api.add_resource(SessionPoints, '/session-points/<string:user_id>')
 
 class InitialSuggestion(Resource):
     """
@@ -82,7 +82,7 @@ class Suggestion(Resource):
         long = (UserPictures
                 .select(UserPictures.location_longitude)
                 .where(UserPictures.user_id==user_id)
-                .order_by(UserPictures.picture_datetime)
+                .order_by(UserPictures.picture_datetime.desc())
                 .limit(1)
                 .dicts())
 
@@ -92,13 +92,18 @@ class Suggestion(Resource):
         lat = (UserPictures
                 .select(UserPictures.location_latitude)
                 .where(UserPictures.user_id==user_id)
-                .order_by(UserPictures.picture_datetime)
+                .order_by(UserPictures.picture_datetime.desc())
                 .limit(1)
                 .dicts())
 
         for row in lat:
             last_lat = float(row['location_latitude'])
-            
+
+        # print(last_long, last_lat) 
+        # return {
+        #     'long': last_long,
+        #     'lat': last_lat
+        # }
             
         # calculate distances from last-visited picture to each street and take 10 closest streets
         subquery_1 = (Locations
@@ -140,7 +145,7 @@ class Suggestion(Resource):
         
         return [suggestion for suggestion in suggestions]
 
-api.add_resource(Suggestion, '/images/suggestion/<int:user_id>')
+api.add_resource(Suggestion, '/suggestions/<string:user_id>')
 
 
 class AllUserLocations(Resource):
@@ -197,30 +202,19 @@ class SaveCurrentLocationOfUser(Resource):
     """
 
     def get(self, user_id, long, lat):
-        current_time = datetime.now()
-        
-        
-        try:                                                                # If the user is found in the database, do this:
-            query = model_to_dict(Users.get(Users.id == user_id))    
-    
+        try:
             (Users
             .update(location_latitude=lat,
                 location_longitude=long)
             .where(Users.id == user_id)
             .execute())
-            return 'Updated the location of existing user.'
 
+            return {'status': 'OK'}
 
-        except:                                                             # If the user is not found, do this:
-            (Users                                          
-            .insert(id = user_id,
-                location_latitude=lat,
-                location_longitude=long,
-                last_update_datetime=current_time)
-            .execute())
-            return 'Inserted a new user.'
+        except:
+            return {'status': 'ERROR'}   
         
-api.add_resource(SaveCurrentLocationOfUser, '/save-current-location/<int:user_id>/<float:long>/<float:lat>/')
+api.add_resource(SaveCurrentLocationOfUser, '/save-current-location/<string:user_id>/<float:long>/<float:lat>/')
 
 
 class SaveTakenImage(Resource):
@@ -230,7 +224,6 @@ class SaveTakenImage(Resource):
         
         First it ASSUMES that we already checked if the user is known
         in the database.
-        
         """
         
         # Calculate the current time the function is called.
@@ -238,7 +231,7 @@ class SaveTakenImage(Resource):
         
         # Insert the information in the user_pictures table.
         (UserPictures
-        .insert(user_id = user_id,
+        .insert(user_id=user_id,
                 image=image_id,
                 location_latitude = long,
                 location_longitude= lat,
@@ -246,17 +239,9 @@ class SaveTakenImage(Resource):
         .execute() 
         )
 
-        return 'Succesfully inserted.'
+        return {'status': 'OK'}
 
-
-api.add_resource(SaveTakenImage, '/save-taken-image/<int:user_id>/<int:image_id>/<float:long>/<float:lat>/')
-
-
-
-
-
-
-
+api.add_resource(SaveTakenImage, '/save-taken-image/<string:user_id>/<int:image_id>/<float:long>/<float:lat>/')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
