@@ -54,11 +54,11 @@ class InitialSuggestion(Resource):
                             .alias('dist'),
                             Locations.longitude, Locations.latitude, Locations.radius)
                     .order_by(SQL('dist'))
-                    .limit(5)
+                    .limit(10)
                     .alias('subquery'))
         
         images = (Images
-                  .select(fn.min(Images.id).alias('id'), Images.street, Images.url, Images.title,
+                  .select(fn.min(Images.id).alias('id'), Images.street, Images.url, Images.title, Images.points,
                           subquery.c.longitude, subquery.c.latitude, subquery.c.radius)
                   .join(subquery, on =
                         (Images.street == subquery.c.street))
@@ -135,7 +135,7 @@ class Suggestion(Resource):
         
         # select one random picture from each street in top 10 streets
         suggestions = (Images
-                       .select(Images.id, Images.street, Images.title, Images.url, Images.usable, Images.year, 
+                       .select(Images.id, Images.street, Images.title, Images.url, Images.usable, Images.year, Images.points,
                        subquery_3.c.longitude, subquery_3.c.latitude)
                        .join(subquery_3, on=(Images.id==subquery_3.c.id))
                        .where(subquery_3.c.rownr==1)
