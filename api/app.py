@@ -192,6 +192,19 @@ class AllUserLocations(Resource):
     
 api.add_resource(AllUserLocations, '/all-user-locations/')
 
+class CreateUser(Resource):
+    def get(self, user_id):
+        try: 
+            (Users                                          
+                .insert(id = user_id)
+                .execute())
+
+            return {'status': 'OK'}
+        except:
+            return {'status': 'ERROR'}           
+
+api.add_resource(CreateUser, '/create/user/<string:user_id>')
+
 class SaveCurrentLocationOfUser(Resource):
     """
     This function updates the location of the given user. But has two scenarios:

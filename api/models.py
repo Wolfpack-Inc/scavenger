@@ -37,10 +37,10 @@ class Locations(BaseModel):
         table_name = 'locations'
 
 class Users(BaseModel):
-    current_image_id = IntegerField(null=True)
+    current_image_id = CharField(null=True)
     last_update_datetime = DateTimeField(null=True)
-    location_latitude = DecimalField()
-    location_longitude = DecimalField()
+    location_latitude = DecimalField(null=True)
+    location_longitude = DecimalField(null=True)
     profile_picture = CharField(null=True)
 
     class Meta:
