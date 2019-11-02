@@ -233,9 +233,9 @@ class SaveTakenImage(Resource):
         (UserPictures
         .insert(user_id=user_id,
                 image=image_id,
-                location_latitude = long,
-                location_longitude= lat,
-                picture_datetime = current_time)
+                location_latitude=lat,
+                location_longitude=long,
+                picture_datetime=current_time)
         .execute() 
         )
 
